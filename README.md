@@ -24,19 +24,18 @@ Select a category.  Set the quantity to convert. Select the current unit. Select
 ## Possible Conversions
 From and to any of these units:
 
-Temperature
+### Temperature
 - Celsius °C
 - Kelvin K
 - Fahrenheit °F
 
-Mass
+### Mass
 - Kilogram kg
 - Gram g
 - Pound lb
 - Ounce oz
 
-
-Length
+### Length
 - Metre
 - Mile
 - Foot
