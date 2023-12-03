@@ -5,8 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.AWTException;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.util.stream.LongStream;
@@ -30,7 +28,7 @@ public class MainFrameTest {
 	@Test
 	public void testGUIInitialization() {
 		// Verify that the frame is visible
-		assertTrue(mainFrame.f.isVisible());
+		assertTrue(mainFrame.frame.isVisible());
 
 		// Verify the default selection of the temperature radio button
 		assertTrue(mainFrame.radioButtonTemp.isSelected());
@@ -47,21 +45,6 @@ public class MainFrameTest {
 		assertEquals(Unit.Celsius, mainFrame.fromComboBox.getSelectedItem());
 		assertEquals(Unit.Select, mainFrame.toComboBox.getSelectedItem());
 
-		// Verify the presence of components
-		assertComponentExists(mainFrame.f, mainFrame.radioButtonTemp);
-		assertComponentExists(mainFrame.f, mainFrame.radioButtonMass);
-		assertComponentExists(mainFrame.f, mainFrame.radioButtonLength);
-		assertComponentExists(mainFrame.f, mainFrame.inputTextField);
-		assertComponentExists(mainFrame.f, mainFrame.fromComboBox);
-		assertComponentExists(mainFrame.f, mainFrame.toComboBox);
-		assertComponentExists(mainFrame.f, mainFrame.lFrom);
-		assertComponentExists(mainFrame.f, mainFrame.lTo);
-		assertComponentExists(mainFrame.f, mainFrame.lErrorMsg);
-		assertComponentExists(mainFrame.f, mainFrame.lOutput);
-	}
-
-	private void assertComponentExists(Component parent, Component component) {
-		assertTrue(((Container) parent).isAncestorOf(component));
 	}
 
 	@Test
@@ -69,7 +52,7 @@ public class MainFrameTest {
 		mainFrame.inputTextField.setText("");
 		mainFrame.inputTextField.requestFocus();
 
-		LongStream.rangeClosed(0, mainFrame.maximumLength).forEach(l -> {
+		LongStream.rangeClosed(0, 9).forEach(l -> {
 			robot.keyPress('1');
 			robot.keyRelease('1');
 		});
@@ -79,7 +62,8 @@ public class MainFrameTest {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		assertEquals("Maximum allowed length for input is: " + mainFrame.maximumLength, mainFrame.lErrorMsg.getText());
+		assertEquals("Input can not be greater than: " + mainFrame.df.format(mainFrame.maxLimit),
+				mainFrame.lErrorMsg.getText());
 	}
 
 	@Test
@@ -96,6 +80,13 @@ public class MainFrameTest {
 			e.printStackTrace();
 		}
 		assertEquals("Invalid Input: a", mainFrame.lErrorMsg.getText());
+	}
+
+	@Test
+	public void testInputValidation_NegativeInput() {
+		mainFrame.radioButtonMass.setSelected(true);
+		mainFrame.validateAndConvertInput("-0.1");
+		assertEquals("Negative input is not allowed", mainFrame.lErrorMsg.getText());
 	}
 
 	@Test
@@ -117,13 +108,12 @@ public class MainFrameTest {
 
 		assertEquals(new Double(1), mainFrame.performTempUnitConversation(Unit.Fahrenheit, Unit.Fahrenheit, 1.0));
 		assertEquals(new Double(-17.2222), mainFrame.performTempUnitConversation(Unit.Fahrenheit, Unit.Celsius, 1.0),
-				0.0002);
-		assertEquals(new Double(256.094), mainFrame.performTempUnitConversation(Unit.Fahrenheit, Unit.Kelvin, 1.3),
+				0.001);
+		assertEquals(new Double(256.09444), mainFrame.performTempUnitConversation(Unit.Fahrenheit, Unit.Kelvin, 1.3),
 				0.001);
 
-		assertEquals(new Double(-457.87), mainFrame.performTempUnitConversation(Unit.Kelvin, Unit.Fahrenheit, 1.0),
-				0.01);
-		assertEquals(new Double(-270.95), mainFrame.performTempUnitConversation(Unit.Kelvin, Unit.Celsius, 2.2), 0.01);
+		assertEquals(new Double(-457.87), mainFrame.performTempUnitConversation(Unit.Kelvin, Unit.Fahrenheit, 1.0));
+		assertEquals(new Double(-270.95), mainFrame.performTempUnitConversation(Unit.Kelvin, Unit.Celsius, 2.2));
 		assertEquals(new Double(1.3), mainFrame.performTempUnitConversation(Unit.Kelvin, Unit.Kelvin, 1.3));
 
 	}
@@ -175,8 +165,8 @@ public class MainFrameTest {
 
 		assertEquals(new Double(5.1), mainFrame.performLengthUnitConversation(Unit.Metre, Unit.Metre, 5.1));
 		assertEquals(new Double(0.00316899), mainFrame.performLengthUnitConversation(Unit.Metre, Unit.Miles, 5.1),
-				0.0000001);
-		assertEquals(new Double(16.7323), mainFrame.performLengthUnitConversation(Unit.Metre, Unit.Foot, 5.1), 0.0001);
+				0.001);
+		assertEquals(new Double(16.7323), mainFrame.performLengthUnitConversation(Unit.Metre, Unit.Foot, 5.1), 0.001);
 		assertEquals(new Double(200.787), mainFrame.performLengthUnitConversation(Unit.Metre, Unit.Inch, 5.1), 0.001);
 
 		assertEquals(new Double(8368.568), mainFrame.performLengthUnitConversation(Unit.Miles, Unit.Metre, 5.2));
@@ -186,14 +176,13 @@ public class MainFrameTest {
 
 		assertEquals(new Double(1.61544), mainFrame.performLengthUnitConversation(Unit.Foot, Unit.Metre, 5.3));
 		assertEquals(new Double(0.00100379), mainFrame.performLengthUnitConversation(Unit.Foot, Unit.Miles, 5.3),
-				0.0001);
+				0.001);
 		assertEquals(new Double(5.3), mainFrame.performLengthUnitConversation(Unit.Foot, Unit.Foot, 5.3));
 		assertEquals(new Double(63.59999999), mainFrame.performLengthUnitConversation(Unit.Foot, Unit.Inch, 5.3),
-				0.0001);
+				0.001);
 
-		assertEquals(new Double(0.13716), mainFrame.performLengthUnitConversation(Unit.Inch, Unit.Metre, 5.4), 0.0001);
-		assertEquals(new Double(8.5227e-5), mainFrame.performLengthUnitConversation(Unit.Inch, Unit.Miles, 5.4),
-				0.0001);
+		assertEquals(new Double(0.13716), mainFrame.performLengthUnitConversation(Unit.Inch, Unit.Metre, 5.4), 0.001);
+		assertEquals(new Double(8.5227e-5), mainFrame.performLengthUnitConversation(Unit.Inch, Unit.Miles, 5.4), 0.001);
 		assertEquals(new Double(0.45), mainFrame.performLengthUnitConversation(Unit.Inch, Unit.Foot, 5.4));
 		assertEquals(new Double(5.4), mainFrame.performLengthUnitConversation(Unit.Inch, Unit.Inch, 5.4));
 

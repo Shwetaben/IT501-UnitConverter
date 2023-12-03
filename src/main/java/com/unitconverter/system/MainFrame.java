@@ -14,6 +14,7 @@ import static com.unitconverter.system.constant.Unit.Pound;
 import static com.unitconverter.system.constant.Unit.Select;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.text.DecimalFormat;
@@ -28,42 +29,38 @@ import javax.swing.JTextField;
 
 import com.unitconverter.system.constant.Unit;
 import com.unitconverter.system.exception.ValidationException;
+import com.unitconverter.system.util.UnitConstantUtil;
 
 public class MainFrame {
 
-	JFrame f;
+	JFrame frame;
 	JTextField inputTextField;
 	JLabel lOutput, lFrom, lTo;
 	JRadioButton radioButtonTemp, radioButtonMass, radioButtonLength;
 	JComboBox<Unit> fromComboBox, toComboBox;
 	JLabel lErrorMsg = new JLabel();
-	int maximumLength = 8;
-
-	Unit tempUnit1[] = { Celsius, Fahrenheit, Kelvin };
-	Unit tempUnit2[] = { Select, Celsius, Fahrenheit, Kelvin };
-
-	Unit massUnit1[] = { Kilogram, Gram, Pound, Ounce };
-	Unit massUnit2[] = { Select, Kilogram, Gram, Pound, Ounce };
-
-	Unit lengthUnit1[] = { Metre, Miles, Foot, Inch };
-	Unit lengthUnit2[] = { Select, Metre, Miles, Foot, Inch };
+	double maxLimit = 99999999;
+	DecimalFormat df = new DecimalFormat("#.######");
 
 	MainFrame() {
 
 		// Creating instance of JFrame
-		f = new JFrame();
+		frame = new JFrame();
 
 		radioButtonTemp = new JRadioButton("Temperature");
-		radioButtonTemp.setBounds(30, 50, 105, 25);
-		f.add(radioButtonTemp);
+		radioButtonTemp.setBounds(30, 50, 170, 25);
+		frame.add(radioButtonTemp);
+		radioButtonTemp.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 
 		radioButtonMass = new JRadioButton("Mass");
-		radioButtonMass.setBounds(163, 50, 90, 25);
-		f.add(radioButtonMass);
+		radioButtonMass.setBounds(210, 50, 110, 25);
+		frame.add(radioButtonMass);
+		radioButtonMass.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 
 		radioButtonLength = new JRadioButton("Length");
-		radioButtonLength.setBounds(270, 50, 90, 25);
-		f.add(radioButtonLength);
+		radioButtonLength.setBounds(320, 50, 110, 25);
+		frame.add(radioButtonLength);
+		radioButtonLength.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 
 		// Grouping radio buttons
 		ButtonGroup bg = new ButtonGroup();
@@ -79,47 +76,54 @@ public class MainFrame {
 		radioButtonTemp.setSelected(true);
 
 		lFrom = new JLabel("From:");
-		lFrom.setBounds(90, 100, 90, 25);
-		f.add(lFrom);
+		lFrom.setBounds(50, 120, 90, 25);
+		frame.add(lFrom);
+		lFrom.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
 
 		inputTextField = new JTextField();
-		inputTextField.setBounds(130, 100, 110, 25);
+		inputTextField.setBounds(100, 120, 140, 25);
 		inputTextField.addCaretListener(e -> performUnitConversion());
-		f.add(inputTextField);
+		inputTextField.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
+		frame.add(inputTextField);
 
 		lTo = new JLabel("To:");
-		lTo.setBounds(90, 150, 90, 25);
-		f.add(lTo);
+		lTo.setBounds(50, 180, 90, 25);
+		lTo.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
+		frame.add(lTo);
 
-		fromComboBox = new JComboBox<Unit>(tempUnit1);
-		fromComboBox.setBounds(250, 100, 90, 25);
+		fromComboBox = new JComboBox<Unit>(UnitConstantUtil.fromTempUnits);
+		fromComboBox.setBounds(250, 120, 150, 25);
 		fromComboBox.addItemListener(this::comboBoxitemStateChanged);
-		f.add(fromComboBox);
+		fromComboBox.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
+		frame.add(fromComboBox);
 
-		lErrorMsg.setBounds(50, 130, 300, 25);
+		lErrorMsg.setBounds(50, 145, 400, 25);
 		lErrorMsg.setForeground(Color.red);
-		f.add(lErrorMsg);
+		lErrorMsg.setFont(new Font(Font.DIALOG, Font.BOLD, 16));
+		frame.add(lErrorMsg);
 
 		lOutput = new JLabel();
-		lOutput.setBounds(130, 150, 110, 25);
-		f.add(lOutput);
+		lOutput.setBounds(100, 180, 140, 25);
+		lOutput.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
+		frame.add(lOutput);
 
-		toComboBox = new JComboBox<Unit>(tempUnit2);
-		toComboBox.setBounds(250, 150, 90, 25);
+		toComboBox = new JComboBox<Unit>(UnitConstantUtil.toTempUnits);
+		toComboBox.setBounds(250, 180, 150, 25);
 		toComboBox.addItemListener(this::comboBoxitemStateChanged);
-		f.add(toComboBox);
+		toComboBox.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
+		frame.add(toComboBox);
 
-		f.setSize(400, 300);
-		f.setLayout(null);
+		frame.setSize(500, 400);
+		frame.setLayout(null);
 
 		// Making the frame visible
-		f.setVisible(true);
-		f.setResizable(false);
-		f.setTitle("Unit converter");
+		frame.setVisible(true);
+		frame.setResizable(false);
+		frame.setTitle("Unit converter");
 		JFrame.setDefaultLookAndFeelDecorated(true);
 
 		// Terminate the application when frame is closed
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	}
 
@@ -131,15 +135,18 @@ public class MainFrame {
 		toComboBox.removeAllItems();
 
 		if (radioButtonTemp.isSelected()) {
-			fromComboBox.setModel(new DefaultComboBoxModel<Unit>(tempUnit1));
-			toComboBox.setModel(new DefaultComboBoxModel<Unit>(tempUnit2));
+			fromComboBox.setModel(new DefaultComboBoxModel<Unit>(UnitConstantUtil.fromTempUnits));
+			toComboBox.setModel(new DefaultComboBoxModel<Unit>(UnitConstantUtil.toTempUnits));
+
 		} else if (radioButtonMass.isSelected()) {
-			fromComboBox.setModel(new DefaultComboBoxModel<Unit>(massUnit1));
-			toComboBox.setModel(new DefaultComboBoxModel<Unit>(massUnit2));
+			fromComboBox.setModel(new DefaultComboBoxModel<Unit>(UnitConstantUtil.fromMassUnits));
+			toComboBox.setModel(new DefaultComboBoxModel<Unit>(UnitConstantUtil.toMassUnits));
+
 		} else if (radioButtonLength.isSelected()) {
-			fromComboBox.setModel(new DefaultComboBoxModel<Unit>(lengthUnit1));
-			toComboBox.setModel(new DefaultComboBoxModel<Unit>(lengthUnit2));
+			fromComboBox.setModel(new DefaultComboBoxModel<Unit>(UnitConstantUtil.fromLengthUnits));
+			toComboBox.setModel(new DefaultComboBoxModel<Unit>(UnitConstantUtil.toLengthUnits));
 		}
+		validateAndConvertInput(inputTextField.getText());
 		lOutput.setText("");
 	}
 
@@ -193,7 +200,6 @@ public class MainFrame {
 		if (outputDbl == null) {
 			lOutput.setText("");
 		} else {
-			DecimalFormat df = new DecimalFormat("#.########");
 			lOutput.setText(df.format(outputDbl == 0d ? 0d : outputDbl));
 		}
 
@@ -212,17 +218,26 @@ public class MainFrame {
 			if (inputStr.contains("d") || inputStr.contains("f")) {
 				throw new Exception();
 			}
-			if (inputStr.length() > maximumLength) {
-				throw new ValidationException("Maximum allowed length for input is: " + maximumLength);
-			}
+
 			outputDbl = Double.parseDouble(inputStr);
+
+			if (outputDbl > 99999999) {
+				throw new ValidationException("Input can not be greater than: " + df.format(maxLimit));
+			}
+
+			if (!radioButtonTemp.isSelected() && outputDbl < 0d) {
+				throw new ValidationException("Negative input is not allowed");
+			}
+
 			lErrorMsg.setText("");
 		} catch (ValidationException ce) {
 			lErrorMsg.setText(ce.getErrorMessage());
 			lOutput.setText("");
+			outputDbl = null;
 		} catch (Exception ex) {
 			lErrorMsg.setText("Invalid Input: " + inputStr);
 			lOutput.setText("");
+			outputDbl = null;
 		}
 		return outputDbl;
 	}
