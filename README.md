@@ -40,6 +40,3 @@ From and to any of these units:
 - Mile
 - Foot
 - Inch
-
-## Documentation
-[Documentation](https://linktodocumentation)
