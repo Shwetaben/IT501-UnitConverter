@@ -221,8 +221,12 @@ public class MainFrame {
 
 			outputDbl = Double.parseDouble(inputStr);
 
-			if (outputDbl > 99999999) {
+			if (outputDbl > maxLimit) {
 				throw new ValidationException("Input can not be greater than: " + df.format(maxLimit));
+			}
+			
+			if (outputDbl < -maxLimit) {
+				throw new ValidationException("Input can not be less than: -" + df.format(maxLimit));
 			}
 
 			if (!radioButtonTemp.isSelected() && outputDbl < 0d) {

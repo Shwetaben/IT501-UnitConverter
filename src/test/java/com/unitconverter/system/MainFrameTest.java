@@ -48,7 +48,7 @@ public class MainFrameTest {
 	}
 
 	@Test
-	public void testInputValidation_MaximumAllowedLength() {
+	public void testInputValidation_MaximumAllowedNumber() {
 		mainFrame.inputTextField.setText("");
 		mainFrame.inputTextField.requestFocus();
 
@@ -65,6 +65,33 @@ public class MainFrameTest {
 		assertEquals("Input can not be greater than: " + mainFrame.df.format(mainFrame.maxLimit),
 				mainFrame.lErrorMsg.getText());
 	}
+	
+	@Test
+	public void testInputValidation_MinimumAllowedNegativeNumber() {
+		mainFrame.inputTextField.setText("");
+		mainFrame.inputTextField.requestFocus();
+
+		LongStream.rangeClosed(0, 10).forEach(l -> {
+			if(l == 0l) {
+				robot.keyPress('-');
+				robot.keyRelease('-');
+			} else {
+				robot.keyPress('1');
+				robot.keyRelease('1');
+			}
+			
+			
+		});
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		assertEquals("Input can not be less than: -" + mainFrame.df.format(mainFrame.maxLimit),
+				mainFrame.lErrorMsg.getText());
+	}
+
 
 	@Test
 	public void testInputValidation_InvalidString() {
